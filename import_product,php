@@ -1,0 +1,12 @@
+$response = file_get_contents("https://amazonapi.com/products");
+$products = json_decode($response, true);
+
+foreach ($products as $p) {
+    $stmt = $pdo->prepare("SELECT 1 FROM products WHERE vendor_product_id = ?");
+    $stmt->execute([$p['id']]);
+    if (!$stmt->fetch()) {
+        $pdo->prepare("INSERT INTO products (name, description, price, image_url, vendor_product_id) 
+                       VALUES (?, ?, ?, ?, ?)")
+            ->execute([$p['title'], $p['description'], $p['price'], $p['image'], $p['id']]);
+    }
+}
